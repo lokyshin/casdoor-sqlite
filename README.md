@@ -1,105 +1,201 @@
+# Casdoor-SQLite | 单容器 IAM/SSO 方案
+
 [![Docker Pulls](https://img.shields.io/docker/pulls/lokyshin/casdoor-sqlite)](https://hub.docker.com/r/lokyshin/casdoor-sqlite)
 [![Docker Image Version](https://img.shields.io/docker/v/lokyshin/casdoor-sqlite?sort=semver)](https://hub.docker.com/r/lokyshin/casdoor-sqlite)
 [![License](https://img.shields.io/github/license/lokyshin/casdoor-sqlite)](LICENSE)
-<h1 align="center" style="border-bottom: none;">📦⚡️ Casdoor</h1>
-<h3 align="center">An open-source UI-first Identity and Access Management (IAM) / Single-Sign-On (SSO) platform with web UI supporting OAuth 2.0, OIDC, SAML, CAS, LDAP, SCIM, WebAuthn, TOTP, MFA and RADIUS</h3>
-<p align="center">
-  <a href="#badge">
-    <img alt="semantic-release" src="https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg">
-  </a>
-  <a href="https://hub.docker.com/r/casbin/casdoor">
-    <img alt="docker pull casbin/casdoor" src="https://img.shields.io/docker/pulls/casbin/casdoor.svg">
-  </a>
-  <a href="https://github.com/casdoor/casdoor/actions/workflows/build.yml">
-    <img alt="GitHub Workflow Status (branch)" src="https://github.com/casdoor/casdoor/workflows/Build/badge.svg?style=flat-square">
-  </a>
-  <a href="https://github.com/casdoor/casdoor/releases/latest">
-    <img alt="GitHub Release" src="https://img.shields.io/github/v/release/casdoor/casdoor.svg">
-  </a>
-  <a href="https://hub.docker.com/r/casbin/casdoor">
-    <img alt="Docker Image Version (latest semver)" src="https://img.shields.io/badge/Docker%20Hub-latest-brightgreen">
-  </a>
-</p>
 
-<p align="center">
-  <a href="https://goreportcard.com/report/github.com/casdoor/casdoor">
-    <img alt="Go Report Card" src="https://goreportcard.com/badge/github.com/casdoor/casdoor?style=flat-square">
-  </a>
-  <a href="https://github.com/casdoor/casdoor/blob/master/LICENSE">
-    <img src="https://img.shields.io/github/license/casdoor/casdoor?style=flat-square" alt="license">
-  </a>
-  <a href="https://github.com/casdoor/casdoor/issues">
-    <img alt="GitHub issues" src="https://img.shields.io/github/issues/casdoor/casdoor?style=flat-square">
-  </a>
-  <a href="#">
-    <img alt="GitHub stars" src="https://img.shields.io/github/stars/casdoor/casdoor?style=flat-square">
-  </a>
-  <a href="https://github.com/casdoor/casdoor/network">
-    <img alt="GitHub forks" src="https://img.shields.io/github/forks/casdoor/casdoor?style=flat-square">
-  </a>
-  <a href="https://crowdin.com/project/casdoor-site">
-    <img alt="Crowdin" src="https://badges.crowdin.net/casdoor-site/localized.svg">
-  </a>
-  <a href="https://discord.gg/5rPsrAzK7S">
-    <img alt="Discord" src="https://img.shields.io/discord/1022748306096537660?style=flat-square&logo=discord&label=discord&color=5865F2">
-  </a>
-</p>
+[English :uk:](#english) | [中文 :cn:](#chinese)
 
-<p align="center">
-  <sup>Sponsored by</sup>
-  <br>
-  <a href="https://stytch.com/docs?utm_source=oss-sponsorship&utm_medium=paid_sponsorship&utm_campaign=casbin">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://cdn.casbin.org/img/stytch-white.png">
-      <source media="(prefers-color-scheme: light)" srcset="https://cdn.casbin.org/img/stytch-charcoal.png">
-      <img src="https://cdn.casbin.org/img/stytch-charcoal.png" width="275">
-    </picture>
-  </a><br/>
-  <a href="https://stytch.com/docs?utm_source=oss-sponsorship&utm_medium=paid_sponsorship&utm_campaign=casbin"><b>Build auth with fraud prevention, faster.</b><br/> Try Stytch for API-first authentication, user & org management, multi-tenant SSO, MFA, device fingerprinting, and more.</a>
-  <br>
-</p>
+---
+## <span id="chinese">🇨🇳 中文介绍</span>
 
-## Online demo
+### 单容器、零依赖、开箱即用的 Casdoor IAM/SSO 平台（SQLite 版）
 
-- Read-only site: https://door.casdoor.com (any modification operation will fail)
-- Writable site: https://demo.casdoor.com (original data will be restored for every 5 minutes)
+这是一款专为解决 MySQL 兼容性问题而优化的 Casdoor 镜像，通过静态编译 SQLite 驱动，实现真正的嵌入式数据库部署。
 
-## Documentation
+---
 
-https://casdoor.org
+#### 核心特性
 
-## Install
+- ✅ **原生 SQLite 支持**：Go build tags 深度集成，无需外部数据库
+- ✅ **单镜像部署**：前端、后端、数据库驱动三合一
+- ✅ **数据持久化**：自动保存 `/data/casdoor.db`
+- ✅ **版本锁定**：所有组件版本固定，构建结果可复现
+- ✅ **开箱即用**：默认账号密码，一键启动
 
-- By source code: https://casdoor.org/docs/basic/server-installation
-- By Docker: https://casdoor.org/docs/basic/try-with-docker
-- By Kubernetes Helm: https://casdoor.org/docs/basic/try-with-helm
+---
 
-## How to connect to Casdoor?
+#### 为什么需要 SQLite 版本？
 
-https://casdoor.org/docs/how-to-connect/overview
+**Casdoor 官方默认不支持 SQLite**，且使用 MySQL 时常遇到：
 
-## Casdoor Public API
+- **SQL 拼接错误**：特定场景下 SQL 语句语法兼容性问题
+- **外键约束异常**：MySQL 外键处理与 ORM 预期不一致
+- **运维复杂度高**：需额外维护数据库服务，增加部署难度
 
-- Docs: https://casdoor.org/docs/basic/public-api
-- Swagger: https://door.casdoor.com/swagger
+本项目通过 `-tags "sqlite"` 编译参数，将 SQLite 驱动静态链接到二进制中，提供**零依赖、零配置**的嵌入式数据库方案，彻底解决 MySQL 兼容性问题。
 
-## Integrations
+---
 
-https://casdoor.org/docs/category/integrations
+#### 版本信息（已锁定）
 
-## How to contact?
+| 组件 | 版本 | 来源 |
+|------|------|------|
+| **Casdoor** | v2.156.0 | Git 提交 `d8b5ecba36de` |
+| **SQLite 驱动** | v1.18.2 | go.mod (`modernc.org/sqlite`) |
+| **SQLite 引擎** | 3.38.5 | 驱动内置版本 |
+| **Go 编译器** | 1.23 | 静态编译 |
+| **Node.js** | 18 | 前端构建环境 |
 
-- Discord: https://discord.gg/5rPsrAzK7S
-- Contact: https://casdoor.org/help
+---
 
-## Contribute
+#### 快速开始
 
-For casdoor, if you have any questions, you can give Issues, or you can also directly start Pull Requests(but we recommend giving issues first to communicate with the community).
+```bash
+# 创建数据目录
+mkdir -p sqlite_data
 
-### I18n translation
+# 启动容器
+docker run -d --name casdoor-sqlite \
+  -p 12880:8000 \
+  -e driverName=sqlite \
+  -e dataSourceName=/data/casdoor.db \
+  -v "$PWD/sqlite_data":/data \
+  --restart always \
+  lokyshin/casdoor-sqlite:1.0.5
 
-If you are contributing to casdoor, please note that we use [Crowdin](https://crowdin.com/project/casdoor-site) as translating platform and i18next as translating tool. When you add some words using i18next in the `web/` directory, please remember to add what you have added to the `web/src/locales/en/data.json` file.
+# 访问
+# http://localhost:12880
+# 账号: admin 密码: 123
+```
+---
 
-## License
+#### 环境变量
 
-[Apache-2.0](https://github.com/casdoor/casdoor/blob/master/LICENSE)
+| 变量名 | 值 | 说明 |
+|--------|----|------|
+| `driverName` | `sqlite` | 必须指定 SQLite 驱动 |
+| `dataSourceName` | `/data/casdoor.db` | 数据库文件路径（建议挂载卷） |
+
+#### 数据持久化
+
+- **卷挂载路径**：`/data`
+- **数据库文件**：`/data/casdoor.db`
+- **备份建议**：定期备份 `sqlite_data/` 目录
+
+#### 默认账号
+
+- **用户名**：`admin`
+- **密码**：`123`
+- **首次登录后**：请立即修改默认密码
+
+#### 源码 & 构建
+
+```bash
+# 从源码构建
+git clone https://github.com/casdoor/casdoor
+cd casdoor
+docker build -f Dockerfile.sqlite -t casdoor-sqlite .
+```
+
+#### 许可证
+Apache License 2.0
+
+---
+<span id="english">
+## 🇺🇸 English Description
+
+### Single-container, Zero-dependency, Ready-to-use Casdoor IAM/SSO Platform (SQLite Edition)
+
+This image is optimized to solve MySQL compatibility issues by statically compiling SQLite driver for true embedded database deployment.
+
+---
+
+#### Key Features
+
+- ✅ **Native SQLite Support**: Deeply integrated via Go build tags, no external database required
+- ✅ **Single Container**: Frontend, backend, and database driver all-in-one
+- ✅ **Data Persistence**: Auto-saves `/data/casdoor.db`
+- ✅ **Version Locking**: All components pinned for reproducible builds
+- ✅ **Out-of-the-box**: Default credentials, one-click start
+
+---
+
+#### Why SQLite Edition?
+
+**Casdoor doesn't support SQLite by default**, and MySQL users often face:
+
+- **SQL Concatenation Errors**: Syntax compatibility issues in specific scenarios
+- **Foreign Key Anomalies**: MySQL's FK handling inconsistent with ORM expectations
+- **High Ops Complexity**: Requires separate database maintenance
+
+This project uses `-tags "sqlite"` to statically link SQLite driver, providing a **zero-dependency, zero-config** embedded database solution that completely resolves MySQL compatibility issues.
+
+---
+
+#### Version Information (Locked)
+
+| Component | Version | Source |
+|-----------|---------|--------|
+| **Casdoor** | v2.156.0 | Git commit `d8b5ecba36de` |
+| **SQLite Driver** | v1.18.2 | go.mod (`modernc.org/sqlite`) |
+| **SQLite Engine** | 3.38.5 | Built into driver |
+| **Go Compiler** | 1.23 | Statically compiled |
+| **Node.js** | 18 | Frontend build env |
+
+---
+
+#### Quick Start
+
+```bash
+# Create data directory
+mkdir -p sqlite_data
+
+# Run container
+docker run -d --name casdoor-sqlite \
+  -p 12880:8000 \
+  -e driverName=sqlite \
+  -e dataSourceName=/data/casdoor.db \
+  -v "$PWD/sqlite_data":/data \
+  --restart always \
+  lokyshin/casdoor-sqlite:1.0.5
+
+# Access
+# http://localhost:12880
+# Username: admin Password: 123
+```
+
+---
+
+#### Environment Variables
+
+| Variable | Value | Description |
+|----------|-------|-------------|
+| `driverName` | `sqlite` | Must specify SQLite driver |
+| `dataSourceName` | `/data/casdoor.db` | DB file path (recommend volume mount) |
+
+#### Data Persistence
+
+- **Volume mount**: `/data`
+- **Database file**: `/data/casdoor.db`
+- **Backup**: Regularly backup `sqlite_data/` directory
+
+#### Default Credentials
+
+- **Username**: `admin`
+- **Password**: `123`
+- **Security**: Please change default password after first login
+
+#### Source & Build
+
+```bash
+# Build from source
+git clone https://github.com/casdoor/casdoor
+cd casdoor
+docker build -f Dockerfile.sqlite -t casdoor-sqlite .
+```
+
+---
+
+#### License
+Apache License 2.0
