@@ -1,3 +1,6 @@
+[![Docker Pulls](https://img.shields.io/docker/pulls/lokyshin/casdoor-sqlite)](https://hub.docker.com/r/lokyshin/casdoor-sqlite)
+[![Docker Image Version](https://img.shields.io/docker/v/lokyshin/casdoor-sqlite?sort=semver)](https://hub.docker.com/r/lokyshin/casdoor-sqlite)
+[![License](https://img.shields.io/github/license/lokyshin/casdoor-sqlite)](LICENSE)
 <h1 align="center" style="border-bottom: none;">📦⚡️ Casdoor</h1>
 <h3 align="center">An open-source UI-first Identity and Access Management (IAM) / Single-Sign-On (SSO) platform with web UI supporting OAuth 2.0, OIDC, SAML, CAS, LDAP, SCIM, WebAuthn, TOTP, MFA and RADIUS</h3>
 <p align="center">
