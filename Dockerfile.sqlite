@@ -1,0 +1,38 @@
+# 多阶段：前端 + 后端 + 纯净运行
+FROM --platform=$BUILDPLATFORM node:18 AS front
+WORKDIR /web
+COPY web/ .
+RUN yarn install --frozen-lockfile --network-timeout 1000000 && \
+    NODE_OPTIONS="--max-old-space-size=4096" yarn run build
+
+FROM golang:1.23 AS back
+WORKDIR /go/src/casdoor
+COPY . .
+
+# 确保 Git 历史完整（关键修复）
+RUN git fetch --unshallow 2>/dev/null || true && \
+    sed -i '/go build/s/go build/go build -tags "sqlite"/' build.sh && \
+    ./build.sh && \
+    go test -v -run TestGetVersionInfo ./util/system_test.go ./util/system.go > version_info.txt
+
+FROM debian:bullseye
+RUN apt update && apt install -y ca-certificates lsof && rm -rf /var/lib/apt/lists/*
+
+# 工作目录在根目录
+WORKDIR /
+
+# 复制主程序
+COPY --from=back /go/src/casdoor/server_linux_amd64 ./server
+COPY --from=back /go/src/casdoor/swagger ./swagger
+COPY --from=back /go/src/casdoor/conf ./conf
+COPY --from=front /web/build ./web/build
+
+# 关键修复：创建原始目录结构并复制版本文件
+RUN mkdir -p /go/src/casdoor
+COPY --from=back /go/src/casdoor/version_info.txt /go/src/casdoor/version_info.txt
+
+# 数据卷
+VOLUME ["/data"]
+
+# 从根目录启动
+ENTRYPOINT ["./server"]

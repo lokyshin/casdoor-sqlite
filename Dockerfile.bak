@@ -41,25 +41,29 @@ ENTRYPOINT ["/server"]
 
 
 FROM debian:bullseye AS db
-RUN apt update && apt install -y ca-certificates && rm -rf /var/lib/apt/lists/*
+RUN apt update \
+    && apt install -y \
+        mariadb-server \
+        mariadb-client \
+    && rm -rf /var/lib/apt/lists/*
 
-# ******  纯净 SQLite 版  ******
-FROM debian:bullseye AS sqlite
-LABEL MAINTAINER="https://casdoor.org/ "
+
+FROM db AS ALLINONE
+LABEL MAINTAINER="https://casdoor.org/"
 ARG TARGETOS
 ARG TARGETARCH
 ENV BUILDX_ARCH="${TARGETOS:-linux}_${TARGETARCH:-amd64}"
 
-# ① 基础证书 + lsof（Casdoor 检查端口用）
-RUN apt update && apt install -y ca-certificates lsof && rm -rf /var/lib/apt/lists/*
+RUN apt update
+RUN apt install -y ca-certificates && update-ca-certificates
 
 WORKDIR /
-# 拷贝二进制及前端产物
 COPY --from=BACK /go/src/casdoor/server_${BUILDX_ARCH} ./server
 COPY --from=BACK /go/src/casdoor/swagger ./swagger
+COPY --from=BACK /go/src/casdoor/docker-entrypoint.sh /docker-entrypoint.sh
 COPY --from=BACK /go/src/casdoor/conf/app.conf ./conf/app.conf
 COPY --from=BACK /go/src/casdoor/version_info.txt ./go/src/casdoor/version_info.txt
 COPY --from=FRONT /web/build ./web/build
 
-# 直接运行 Casdoor，不再启动 MariaDB
-ENTRYPOINT ["./server"]
+ENTRYPOINT ["/bin/bash"]
+CMD ["/docker-entrypoint.sh"]
